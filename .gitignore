@@ -1,0 +1,49 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# N8N files
+.n8n/
+workflows/*.json.bak
+credentials/*.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+docker-compose.override.yml
+
+# Node.js
+node_modules/
+npm-debug.log*
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Reports and data
+reports/
+data/exports/
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.p12
