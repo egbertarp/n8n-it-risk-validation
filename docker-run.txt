@@ -1,0 +1,57 @@
+Hier is de equivalente docker run set van commando’s die jouw docker-compose.yml nabootsen. Omdat docker run geen automatische netwerk- en volumecreatie doet zoals Compose, moeten we die zelf aanmaken.
+
+Stap 1 – netwerk en volumes aanmaken
+docker network create n8n-network
+docker volume create n8n_data
+docker volume create postgres_data
+docker volume create redis_data
+
+Stap 2 – containers starten
+
+Postgres
+
+docker run -d \
+  --name n8n-postgres \
+  --restart unless-stopped \
+  --network n8n-network \
+  -e POSTGRES_DB=${POSTGRES_DB:-n8n} \
+  -e POSTGRES_USER=${POSTGRES_USER:-n8nuser} \
+  -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-n8npassword} \
+  -v postgres_data:/var/lib/postgresql/data \
+  postgres:15-alpine
+
+
+Redis
+
+docker run -d \
+  --name n8n-redis \
+  --restart unless-stopped \
+  --network n8n-network \
+  -v redis_data:/data \
+  redis:7-alpine
+
+
+n8n
+
+docker run -d \
+  --name n8n-risk-validation \
+  --restart unless-stopped \
+  --network n8n-network \
+  -p 5678:5678 \
+  -e N8N_BASIC_AUTH_ACTIVE=true \
+  -e N8N_BASIC_AUTH_USER=${N8N_USER:-admin} \
+  -e N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme123} \
+  -e N8N_HOST=${N8N_HOST:-localhost} \
+  -e N8N_PORT=5678 \
+  -e N8N_PROTOCOL=http \
+  -e NODE_ENV=production \
+  -e WEBHOOK_URL=http://localhost:5678 \
+  -e N8N_METRICS=true \
+  -v n8n_data:/home/node/.n8n \
+  -v $(pwd)/workflows:/home/node/.n8n/workflows \
+  -v $(pwd)/config:/home/node/.n8n/config \
+  -v $(pwd)/credentials:/home/node/.n8n/credentials \
+  n8nio/n8n:latest
+
+
+Wil je dat ik er één enkel shellscript van maak (bijv. run-n8n.sh) zodat je alles in één keer kan uitvoeren,
